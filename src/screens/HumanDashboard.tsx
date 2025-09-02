@@ -6,7 +6,7 @@ import { NotificationPopup } from '../components/NotificationPopup';
 import { PlayerProfile } from '../components/PlayerProfile';
 import { ActionButtons } from '../components/ActionButtons';
 import { NavigationMenu } from '../components/NavigationMenu';
-import { HeaderButtons } from '../components/HeaderButtons';
+import { DashboardHeader } from '../components/DashboardHeader';
 import { MainButtonsGrid } from '../components/MainButtonsGrid';
 
 export const HumanDashboard: React.FC = () => {
@@ -72,12 +72,13 @@ export const HumanDashboard: React.FC = () => {
       >
         <ScrollView style={styles.scrollView} showsVerticalScrollIndicator={false}>
           {/* Header */}
-          <View style={styles.header}>
-            <Text style={[styles.title, { color: themeColors.text }]}>
-              Tensei Slime
-            </Text>
-            <HeaderButtons theme="blue" />
-          </View>
+          <DashboardHeader 
+            theme="blue" 
+            onSearch={(query) => {
+              // TODO: Implement search functionality
+              console.log('Search query:', query);
+            }}
+          />
 
           {/* Navigation Menu */}
           <NavigationMenu 
@@ -121,18 +122,7 @@ const styles = StyleSheet.create({
   scrollView: {
     flex: 1,
   },
-  header: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-    padding: 24,
-    paddingTop: 40,
-  },
-  title: {
-    fontSize: 32,
-    fontWeight: '800',
-    marginBottom: 8,
-  },
+
   emptyState: {
     flex: 1,
     justifyContent: 'center',
