@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useCallback, useRef } from 'react';
 import { StyleSheet, Text, View, ScrollView, TouchableOpacity } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import { DashboardLayout } from '../components/DashboardLayout';
@@ -8,10 +8,17 @@ import { ActionButtons } from '../components/ActionButtons';
 import { NavigationMenu } from '../components/NavigationMenu';
 import { DashboardHeader } from '../components/DashboardHeader';
 import { MainButtonsGrid } from '../components/MainButtonsGrid';
+import { ArenaLobby } from '../components/ArenaLobby';
+import { TransitionWrapper } from '../components/TransitionWrapper';
 
 export const DemonDashboard: React.FC = () => {
   const [showNotification, setShowNotification] = useState(false);
   const [activeTab, setActiveTab] = useState<'Dashboard' | 'Arena' | 'Clan'>('Dashboard');
+  const [isTransitioning, setIsTransitioning] = useState(false);
+  const [transitionDirection, setTransitionDirection] = useState<'left' | 'right'>('left');
+  
+  // Prevent multiple rapid tab changes
+  const isChangingTab = useRef(false);
 
   const themeColors = {
     primary: '#DC2626',
@@ -51,9 +58,62 @@ export const DemonDashboard: React.FC = () => {
     // Handle player decline logic
   };
 
-  const handleTabChange = (tab: 'Dashboard' | 'Arena' | 'Clan') => {
-    setActiveTab(tab);
-    // Handle navigation logic here
+  const handleTabChange = useCallback((tab: 'Dashboard' | 'Arena' | 'Clan') => {
+    // Prevent multiple rapid tab changes
+    if (isChangingTab.current || tab === activeTab) {
+      return;
+    }
+
+    isChangingTab.current = true;
+    
+    // Determine transition direction based on tab order
+    const tabOrder = ['Dashboard', 'Arena', 'Clan'];
+    const currentIndex = tabOrder.indexOf(activeTab);
+    const newIndex = tabOrder.indexOf(tab);
+    const direction = newIndex > currentIndex ? 'left' : 'right';
+    
+    setTransitionDirection(direction);
+    setIsTransitioning(true);
+    
+    // Update active tab after transition starts
+    setTimeout(() => {
+      setActiveTab(tab);
+    }, 150);
+  }, [activeTab]);
+
+  const handleTransitionComplete = useCallback(() => {
+    setIsTransitioning(false);
+    // Allow new tab changes after animation completes
+    setTimeout(() => {
+      isChangingTab.current = false;
+    }, 100);
+  }, []);
+
+  const renderTabContent = () => {
+    switch (activeTab) {
+      case 'Dashboard':
+        return (
+          <>
+            <PlayerProfile theme="red" />
+            <ActionButtons theme="red" />
+            <MainButtonsGrid theme="red" />
+          </>
+        );
+      case 'Arena':
+        return (
+          <ArenaLobby theme="red" />
+        );
+      case 'Clan':
+        return (
+          <View style={styles.clanContent}>
+            <Text style={styles.clanTitle}>Clan</Text>
+            <Text style={styles.clanSubtitle}>Join or create a clan</Text>
+            {/* Add Clan-specific content here */}
+          </View>
+        );
+      default:
+        return null;
+    }
   };
 
   return (
@@ -87,16 +147,14 @@ export const DemonDashboard: React.FC = () => {
             onTabChange={handleTabChange} 
           />
 
-          {/* Player Profile */}
-          <PlayerProfile theme="red" />
-
-          {/* Action Buttons */}
-          <ActionButtons theme="red" />
-
-          {/* Main Buttons Grid */}
-          <MainButtonsGrid theme="red" />
-
-
+          {/* Tab Content with Transition Wrapper */}
+          <TransitionWrapper
+            isTransitioning={isTransitioning}
+            direction={transitionDirection}
+            onTransitionComplete={handleTransitionComplete}
+          >
+            {renderTabContent()}
+          </TransitionWrapper>
         </ScrollView>
       </LinearGradient>
 
@@ -135,5 +193,20 @@ const styles = StyleSheet.create({
     fontWeight: '500',
     textAlign: 'center',
     opacity: 0.7,
+  },
+  clanContent: {
+    paddingHorizontal: 24,
+    paddingTop: 24,
+  },
+  clanTitle: {
+    fontSize: 24,
+    fontWeight: 'bold',
+    color: '#F8FAFC',
+    marginBottom: 8,
+  },
+  clanSubtitle: {
+    fontSize: 16,
+    color: '#FECACA',
+    marginBottom: 24,
   },
 });

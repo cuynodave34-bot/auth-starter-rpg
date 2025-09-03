@@ -1,4 +1,4 @@
-import React, { useRef } from 'react';
+import React, { useRef, useEffect } from 'react';
 import { StyleSheet, Text, View, TouchableOpacity, Animated } from 'react-native';
 import Svg, { Path } from 'react-native-svg';
 import { Tooltip } from './Tooltip';
@@ -65,6 +65,28 @@ const AnimatedNavButton: React.FC<{
 }) => {
   const scaleAnim = useRef(new Animated.Value(1)).current;
   const opacityAnim = useRef(new Animated.Value(1)).current;
+  const glowAnim = useRef(new Animated.Value(0)).current;
+
+  // Animate active state changes with smooth transitions
+  useEffect(() => {
+    if (isActive) {
+      // Enhanced active state animations
+      Animated.spring(glowAnim, {
+        toValue: 1,
+        useNativeDriver: false,
+        tension: 200,
+        friction: 8,
+      }).start();
+    } else {
+      // Reset to inactive state
+      Animated.spring(glowAnim, {
+        toValue: 0,
+        useNativeDriver: false,
+        tension: 200,
+        friction: 8,
+      }).start();
+    }
+  }, [isActive]);
 
   const handlePressIn = () => {
     Animated.parallel([
@@ -114,21 +136,43 @@ const AnimatedNavButton: React.FC<{
             borderWidth: isActive ? 2 : 0.5,
             transform: [{ scale: scaleAnim }],
             opacity: opacityAnim,
+            // Light glow effect for active state
             shadowColor: isActive ? activeGlow : 'transparent',
             shadowOffset: {
               width: 0,
               height: 0,
             },
-            shadowOpacity: isActive ? 1 : 0,
-            shadowRadius: isActive ? 8 : 0,
-            elevation: isActive ? 8 : 2,
+            shadowOpacity: isActive ? 0.8 : 0,
+            shadowRadius: isActive ? 12 : 0,
+            elevation: isActive ? 12 : 0,
           },
         ]}
       >
-        <View style={{ opacity: isActive ? 1 : 0.6 }}>
+        {/* Light glow effect for active state */}
+        {isActive && (
+          <Animated.View
+            style={[
+              styles.lightGlow,
+              {
+                opacity: glowAnim,
+                transform: [
+                  {
+                    scale: glowAnim.interpolate({
+                      inputRange: [0, 1],
+                      outputRange: [0.8, 1.2],
+                    }),
+                  },
+                ],
+              },
+            ]}
+          />
+        )}
+        
+        {/* Icon with proper color */}
+        <View style={{ opacity: 1 }}>
           {React.cloneElement(children as React.ReactElement, {
             color: isActive ? activeIconColor : iconColor,
-          })}
+          } as any)}
         </View>
       </Animated.View>
     </TouchableOpacity>
@@ -150,7 +194,7 @@ export const NavigationMenu: React.FC<NavigationMenuProps> = ({
         activeBorder: '#818CF8',
         iconColor: '#818CF8',
         activeIconColor: '#FFFFFF',
-        activeGlow: 'rgba(129, 140, 248, 0.6)',
+        activeGlow: '#87CEEB', // Light Blue glow for Human Dashboard
       }
     : {
         primary: '#DC2626',
@@ -161,7 +205,7 @@ export const NavigationMenu: React.FC<NavigationMenuProps> = ({
         activeBorder: '#F87171',
         iconColor: '#F87171',
         activeIconColor: '#FFFFFF',
-        activeGlow: 'rgba(248, 113, 113, 0.6)',
+        activeGlow: '#FF2400', // Scarlet Red glow for Demon Dashboard
       };
 
   const handleDashboardPress = () => {
@@ -256,6 +300,16 @@ const styles = StyleSheet.create({
     borderRadius: 22,
     justifyContent: 'center',
     alignItems: 'center',
-    borderWidth: 0.5,
+    position: 'relative',
+  },
+  lightGlow: {
+    position: 'absolute',
+    width: 44,
+    height: 44,
+    borderRadius: 22,
+    backgroundColor: 'transparent',
+    opacity: 0.3,
+    borderWidth: 1,
+    borderColor: 'transparent',
   },
 });
