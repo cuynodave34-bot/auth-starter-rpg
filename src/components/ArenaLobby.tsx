@@ -477,16 +477,19 @@ const styles = StyleSheet.create({
   collapseButtonText: {
     fontSize: 16,
     fontWeight: 'bold',
+    textAlign: 'center',
+    lineHeight: 16, // Ensure proper vertical centering
   },
   tabsContainer: {
     flexDirection: 'row',
     padding: 16,
+    paddingRight: 56, // Increase right padding to make more room for the collapsible button
     gap: 8,
   },
   tab: {
     flex: 1,
     paddingVertical: 12,
-    paddingHorizontal: 16,
+    paddingHorizontal: 10, // Reduce horizontal padding further to make tabs narrower
     borderRadius: 8,
     borderWidth: 1,
     borderColor: 'rgba(255, 255, 255, 0.1)',

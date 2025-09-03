@@ -8,7 +8,7 @@ import { ActionButtons } from '../components/ActionButtons';
 import { NavigationMenu } from '../components/NavigationMenu';
 import { DashboardHeader } from '../components/DashboardHeader';
 import { MainButtonsGrid } from '../components/MainButtonsGrid';
-import { ArenaLobby } from '../components/ArenaLobby';
+import { LobbyHub } from '../components/LobbyHub';
 import { TransitionWrapper } from '../components/TransitionWrapper';
 
 export const HumanDashboard: React.FC = () => {
@@ -101,7 +101,7 @@ export const HumanDashboard: React.FC = () => {
         );
       case 'Arena':
         return (
-          <ArenaLobby theme="blue" />
+          <LobbyHub theme="blue" />
         );
       case 'Clan':
         return (
