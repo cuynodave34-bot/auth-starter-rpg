@@ -47,7 +47,27 @@ type RootStackParamList = {
 const Stack = createNativeStackNavigator<RootStackParamList>();
 
 const RootNavigator = () => {
+  // More robust platform detection
   const isWeb = Platform.OS === 'web';
+  const isMobile = Platform.OS === 'ios' || Platform.OS === 'android';
+  
+  // Enhanced logging for debugging
+  console.log('=== PLATFORM DETECTION ===');
+  console.log('Platform.OS:', Platform.OS);
+  console.log('Platform.Version:', Platform.Version);
+  console.log('Platform.isTV:', Platform.isTV);
+  console.log('Is Web:', isWeb);
+  console.log('Is Mobile:', isMobile);
+  console.log('========================');
+  
+  // Ensure mobile users get mobile screens
+  if (isMobile && !isWeb) {
+    console.log('✅ Routing to MOBILE screens');
+  } else if (isWeb) {
+    console.log('✅ Routing to WEB screens');
+  } else {
+    console.log('⚠️ Unknown platform, defaulting to mobile');
+  }
   
   return (
     <Stack.Navigator screenOptions={{ headerShown: false }}>
@@ -60,6 +80,7 @@ const RootNavigator = () => {
           <Stack.Screen name="EmailSent" component={EmailSentScreen} />
           <Stack.Screen name="HumanDashboard" component={HumanDashboard} />
           <Stack.Screen name="DemonDashboard" component={DemonDashboard} />
+
         </>
       ) : (
         <>
@@ -71,6 +92,7 @@ const RootNavigator = () => {
           <Stack.Screen name="EmailSent" component={EmailSentScreen} />
           <Stack.Screen name="HumanDashboard" component={HumanDashboard} />
           <Stack.Screen name="DemonDashboard" component={DemonDashboard} />
+
         </>
       )}
     </Stack.Navigator>
@@ -78,6 +100,9 @@ const RootNavigator = () => {
 };
 
 export default function App() {
+  // Log the platform at app startup
+  console.log('🚀 App starting on platform:', Platform.OS);
+  
   return (
     <AuthProvider>
       <PlayerProvider>

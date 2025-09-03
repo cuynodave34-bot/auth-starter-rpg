@@ -81,10 +81,10 @@ const styles = StyleSheet.create({
   },
   tooltip: {
     position: 'absolute',
-    bottom: '100%',
+    top: '100%', // Position below the button instead of above
     left: '50%',
     transform: [{ translateX: -50 }],
-    marginBottom: 8,
+    marginTop: 8, // Add margin below instead of above
     paddingHorizontal: 12,
     paddingVertical: 6,
     borderRadius: 6,
@@ -100,11 +100,13 @@ const styles = StyleSheet.create({
     zIndex: 1000,
     alignItems: 'center',
     justifyContent: 'center',
+    minWidth: 80, // Ensure minimum width for better text display
   },
   tooltipText: {
     fontSize: 12,
     fontWeight: '600',
     textAlign: 'center',
     alignSelf: 'center',
+    lineHeight: 16, // Add line height for better text spacing
   },
 });

@@ -154,7 +154,7 @@ const styles = StyleSheet.create({
   container: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: 16, // Spacing between buttons
+    gap: 24, // Better spacing between buttons
   },
   headerButton: {
     width: 32,
