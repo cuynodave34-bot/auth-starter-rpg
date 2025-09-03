@@ -18,3 +18,4 @@ export { Tooltip } from './Tooltip';
 export { TransitionWrapper } from './TransitionWrapper';
 export { WebLeftWaves } from './WebLeftWaves';
 export { ArenaLobby } from './ArenaLobby';
+export { LobbyHub } from './LobbyHub';
