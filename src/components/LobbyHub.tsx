@@ -42,7 +42,8 @@ const generateInviteCode = (): string => {
 
 export const LobbyHub: React.FC<LobbyHubProps> = ({ theme }) => {
   const [currentStep, setCurrentStep] = useState<'lobby-info' | 'player-invitation' | 'player-lobby'>('lobby-info');
-  const [activeTab, setActiveTab] = useState<'create' | 'join' | 'watch'>('create');
+  const [isCreateExpanded, setIsCreateExpanded] = useState(false);
+  const [showLobbyCreation, setShowLobbyCreation] = useState(false);
   const [lobbyDetails, setLobbyDetails] = useState({
     team1Size: '1',
     team2Size: '1',
@@ -71,6 +72,7 @@ export const LobbyHub: React.FC<LobbyHubProps> = ({ theme }) => {
         text: '#F8FAFC',
         textSecondary: '#CBD5E1',
         border: 'rgba(129, 140, 248, 0.2)',
+        card: 'rgba(79, 70, 229, 0.08)',
         success: '#10B981',
         warning: '#F59E0B',
         error: '#EF4444',
@@ -87,6 +89,7 @@ export const LobbyHub: React.FC<LobbyHubProps> = ({ theme }) => {
         text: '#F8FAFC',
         textSecondary: '#FECACA',
         border: 'rgba(248, 113, 113, 0.2)',
+        card: 'rgba(220, 38, 38, 0.08)',
         success: '#10B981',
         warning: '#F59E0B',
         error: '#EF4444',
@@ -141,74 +144,50 @@ export const LobbyHub: React.FC<LobbyHubProps> = ({ theme }) => {
     }
   };
 
-  const renderTabs = () => (
-    <View style={styles.tabsContainer}>
-      <TouchableOpacity
-        style={[
-          styles.tab,
-          activeTab === 'create' && { 
-            backgroundColor: themeColors.primary,
-            borderColor: themeColors.primary
-          }
-        ]}
-        onPress={() => setActiveTab('create')}
-      >
-        <Text style={[
-          styles.tabText,
-          { 
-            color: activeTab === 'create' 
-              ? themeColors.text 
-              : themeColors.textSecondary
-          }
-        ]}>
-          Create Lobby
-        </Text>
-      </TouchableOpacity>
+  const handleCreateButtonClick = () => {
+    setShowLobbyCreation(true);
+  };
 
-      <TouchableOpacity
-        style={[
-          styles.tab,
-          activeTab === 'join' && { 
-            backgroundColor: themeColors.primary,
-            borderColor: themeColors.primary
-          }
-        ]}
-        onPress={() => setActiveTab('join')}
-      >
-        <Text style={[
-          styles.tabText,
-          { 
-            color: activeTab === 'join' 
-              ? themeColors.text 
-              : themeColors.textSecondary
-          }
-        ]}>
-          Join Lobby
-        </Text>
-      </TouchableOpacity>
+  const handleBackToMain = () => {
+    setShowLobbyCreation(false);
+    setCurrentStep('lobby-info'); // Reset to first step
+  };
 
+  const renderSectionHeader = (title: string) => (
+    <View style={[styles.sectionHeader, { backgroundColor: themeColors.surface }]}>
+      <Text style={[styles.sectionHeaderText, { color: themeColors.text }]}>
+        {title}
+      </Text>
+    </View>
+  );
+
+  const renderHorizontalStripe = () => (
+    <View style={[styles.horizontalStripe, { backgroundColor: themeColors.border }]} />
+  );
+
+  const renderCreateButton = () => (
+    <View style={styles.createButtonContainer}>
       <TouchableOpacity
-        style={[
-          styles.tab,
-          activeTab === 'watch' && { 
-            backgroundColor: themeColors.primary,
-            borderColor: themeColors.primary
-          }
-        ]}
-        onPress={() => setActiveTab('watch')}
+        style={[styles.createMainButton, { backgroundColor: '#10B981' }]}
+        onPress={handleCreateButtonClick}
+        activeOpacity={0.8}
       >
-        <Text style={[
-          styles.tabText,
-          { 
-            color: activeTab === 'watch' 
-              ? themeColors.text 
-              : themeColors.textSecondary
-          }
-        ]}>
-          Watch Lobby
+        <Text style={[styles.createMainButtonText, { color: '#FFFFFF' }]}>
+          + Create New Lobby
         </Text>
       </TouchableOpacity>
     </View>
+  );
+
+  const renderBackArrow = () => (
+    <TouchableOpacity
+      style={[styles.backArrow, { borderColor: themeColors.border }]}
+      onPress={handleBackToMain}
+    >
+      <Text style={[styles.backArrowText, { color: themeColors.text }]}>
+        ←
+      </Text>
+    </TouchableOpacity>
   );
 
   const renderProgressIndicator = () => (
@@ -733,35 +712,71 @@ export const LobbyHub: React.FC<LobbyHubProps> = ({ theme }) => {
   const renderJoinLobbyScreen = () => (
     <View style={styles.screen}>
       <View style={styles.screenContent}>
-        <Text style={[styles.screenTitle, { color: themeColors.text }]}>
-          Join Lobby
-        </Text>
-        
-        <View style={[styles.section, { backgroundColor: themeColors.surface }]}>
-          <Text style={[styles.sectionTitle, { color: themeColors.text }]}>
-            Enter Lobby Code
+        <View style={styles.joinLobbyHeader}>
+          <Text style={[styles.screenTitle, { color: themeColors.text }]}>
+            Join Lobby
           </Text>
-          <View style={[styles.inputContainer, { borderColor: themeColors.border }]}>
-            <TextInput
-              style={[styles.textInput, { color: themeColors.text }]}
-              placeholder="Enter 24-character lobby code..."
-              placeholderTextColor={themeColors.textSecondary}
-            />
+          <View style={styles.joinLobbySearchContainer}>
+            <View style={[styles.joinLobbySearchInput, { borderColor: themeColors.border }]}>
+              <TextInput
+                style={[styles.joinLobbyTextInput, { color: themeColors.text }]}
+                placeholder="Enter 24-character lobby code..."
+                placeholderTextColor={themeColors.textSecondary}
+              />
+            </View>
+            <TouchableOpacity style={[styles.joinLobbyButton, { backgroundColor: themeColors.primary }]}>
+              <Text style={[styles.joinLobbyButtonText, { color: '#FFFFFF' }]}>
+                Join
+              </Text>
+            </TouchableOpacity>
           </View>
-          <TouchableOpacity style={[styles.joinButton, { backgroundColor: themeColors.primary }]}>
-            <Text style={[styles.joinButtonText, { color: '#FFFFFF' }]}>
-              Join Lobby
-            </Text>
-          </TouchableOpacity>
         </View>
 
         <View style={[styles.section, { backgroundColor: themeColors.surface }]}>
           <Text style={[styles.sectionTitle, { color: themeColors.text }]}>
             Available Lobbies
           </Text>
-          <Text style={[styles.placeholderText, { color: themeColors.textSecondary }]}>
-            Public lobbies will be displayed here
-          </Text>
+          <View style={styles.lobbyCardsContainer}>
+            {[
+              { id: '1', name: 'Epic Battle Royale', players: 6, maxPlayers: 8, status: 'in-lobby', gameMode: 'ranked', creator: 'BattleMaster' },
+              { id: '2', name: 'Quick Duel', players: 2, maxPlayers: 2, status: 'in-lobby', gameMode: 'casual', creator: 'Duelist' },
+              { id: '3', name: 'Team Clash', players: 4, maxPlayers: 6, status: 'in-lobby', gameMode: 'ranked', creator: 'TeamLeader' },
+              { id: '4', name: 'Friendly Match', players: 3, maxPlayers: 4, status: 'in-lobby', gameMode: 'casual', creator: 'FriendlyPlayer' },
+            ].map((lobby) => (
+              <TouchableOpacity
+                key={lobby.id}
+                style={[styles.lobbyCard, { backgroundColor: themeColors.card, borderColor: themeColors.border }]}
+                activeOpacity={0.8}
+              >
+                <View style={styles.lobbyCardHeader}>
+                  <Text style={[styles.lobbyCardTitle, { color: themeColors.text }]}>
+                    {lobby.name}
+                  </Text>
+                  <View style={[styles.lobbyStatusBadge, { backgroundColor: themeColors.primary }]}>
+                    <Text style={[styles.lobbyStatusText, { color: '#FFFFFF' }]}>
+                      {lobby.status.toUpperCase()}
+                    </Text>
+                  </View>
+                </View>
+                <View style={styles.lobbyCardInfo}>
+                  <Text style={[styles.lobbyCardPlayers, { color: themeColors.textSecondary }]}>
+                    {lobby.players}/{lobby.maxPlayers} Players
+                  </Text>
+                  <Text style={[styles.lobbyCardMode, { color: themeColors.textSecondary }]}>
+                    {lobby.gameMode.charAt(0).toUpperCase() + lobby.gameMode.slice(1)}
+                  </Text>
+                  <View style={styles.lobbyCreatorInfo}>
+                    <Text style={[styles.lobbyCreatorLabel, { color: themeColors.textSecondary }]}>
+                      Created by:
+                    </Text>
+                    <Text style={[styles.lobbyCreatorName, { color: themeColors.text }]}>
+                      {lobby.creator}
+                    </Text>
+                  </View>
+                </View>
+              </TouchableOpacity>
+            ))}
+          </View>
         </View>
       </View>
     </View>
@@ -778,58 +793,111 @@ export const LobbyHub: React.FC<LobbyHubProps> = ({ theme }) => {
           <Text style={[styles.sectionTitle, { color: themeColors.text }]}>
             Active Battles
           </Text>
-          <Text style={[styles.placeholderText, { color: themeColors.textSecondary }]}>
-            Live battles and replays will be available here
-          </Text>
-        </View>
-
-        <View style={[styles.section, { backgroundColor: themeColors.surface }]}>
-          <Text style={[styles.sectionTitle, { color: themeColors.text }]}>
-            Battle History
-          </Text>
-          <Text style={[styles.placeholderText, { color: themeColors.textSecondary }]}>
-            Past battles and statistics will be shown here
-          </Text>
+          <View style={styles.lobbyCardsContainer}>
+            {[
+              { id: '1', name: 'Clash of Titans', players: 8, maxPlayers: 8, status: 'in-game', gameMode: 'ranked', duration: '5:32', creator: 'TitanSlayer' },
+              { id: '2', name: 'Epic Showdown', players: 4, maxPlayers: 4, status: 'in-game', gameMode: 'casual', duration: '2:15', creator: 'EpicGamer' },
+              { id: '3', name: 'Battle Royale', players: 6, maxPlayers: 6, status: 'in-game', gameMode: 'ranked', duration: '8:47', creator: 'RoyaleKing' },
+            ].map((battle) => (
+              <TouchableOpacity
+                key={battle.id}
+                style={[styles.lobbyCard, { backgroundColor: themeColors.card, borderColor: themeColors.border }]}
+                activeOpacity={0.8}
+              >
+                <View style={styles.lobbyCardHeader}>
+                  <Text style={[styles.lobbyCardTitle, { color: themeColors.text }]}>
+                    {battle.name}
+                  </Text>
+                  <View style={[styles.lobbyStatusBadge, { backgroundColor: themeColors.accent }]}>
+                    <Text style={[styles.lobbyStatusText, { color: '#FFFFFF' }]}>
+                      IN-GAME
+                    </Text>
+                  </View>
+                </View>
+                <View style={styles.lobbyCardInfo}>
+                  <Text style={[styles.lobbyCardPlayers, { color: themeColors.textSecondary }]}>
+                    {battle.players}/{battle.maxPlayers} Players
+                  </Text>
+                  <Text style={[styles.lobbyCardMode, { color: themeColors.textSecondary }]}>
+                    {battle.duration} • {battle.gameMode.charAt(0).toUpperCase() + battle.gameMode.slice(1)}
+                  </Text>
+                  <View style={styles.lobbyCreatorInfo}>
+                    <Text style={[styles.lobbyCreatorLabel, { color: themeColors.textSecondary }]}>
+                      Created by:
+                    </Text>
+                    <Text style={[styles.lobbyCreatorName, { color: themeColors.text }]}>
+                      {battle.creator}
+                    </Text>
+                  </View>
+                </View>
+              </TouchableOpacity>
+            ))}
+          </View>
         </View>
       </View>
     </View>
   );
 
-  const renderTabContent = () => {
-    switch (activeTab) {
-      case 'create':
-        return (
-          <>
-            {renderProgressIndicator()}
-            {currentStep === 'lobby-info' && renderLobbyInformationScreen()}
-            {currentStep === 'player-invitation' && renderPlayerInvitationScreen()}
-            {currentStep === 'player-lobby' && renderPlayerLobbyScreen()}
-          </>
-        );
-      case 'join':
-        return renderJoinLobbyScreen();
-      case 'watch':
-        return renderWatchLobbyScreen();
-      default:
-        return null;
-    }
-  };
+  const renderLobbyCreationPage = () => (
+    <ScrollView style={styles.lobbyCreationContent} showsVerticalScrollIndicator={false}>
+      {/* Back Arrow Header */}
+      <View style={[styles.lobbyCreationHeader, { backgroundColor: themeColors.surface }]}>
+        {renderBackArrow()}
+        <Text style={[styles.lobbyCreationTitle, { color: themeColors.text }]}>
+          Create New Lobby
+        </Text>
+        <View style={styles.placeholder} />
+      </View>
+
+      {/* Progress Indicator */}
+      {renderProgressIndicator()}
+
+      {/* Lobby Creation Content */}
+      {currentStep === 'lobby-info' && renderLobbyInformationScreen()}
+      {currentStep === 'player-invitation' && renderPlayerInvitationScreen()}
+      {currentStep === 'player-lobby' && renderPlayerLobbyScreen()}
+    </ScrollView>
+  );
+
+  const renderCombinedContent = () => (
+    <ScrollView style={styles.combinedContent} showsVerticalScrollIndicator={false}>
+      {/* Create Section */}
+      {renderSectionHeader('Create')}
+      <View style={styles.sectionContent}>
+        {renderCreateButton()}
+      </View>
+
+      {/* Horizontal Stripe */}
+      {renderHorizontalStripe()}
+
+      {/* Join Section */}
+      {renderSectionHeader('Join')}
+      <View style={styles.sectionContent}>
+        {renderJoinLobbyScreen()}
+      </View>
+
+      {/* Horizontal Stripe */}
+      {renderHorizontalStripe()}
+
+      {/* Watch Section */}
+      {renderSectionHeader('Watch')}
+      <View style={styles.sectionContent}>
+        {renderWatchLobbyScreen()}
+      </View>
+    </ScrollView>
+  );
 
   return (
     <View style={styles.mainContainer}>
-      {/* Tabs - 100px margin from top of container */}
-      <View style={styles.tabsWrapper}>
-        {renderTabs()}
-      </View>
-      
-      {/* Main Container - 100px margin from tabs */}
+      {/* Main Container - Conditional Content */}
       <View style={[styles.lobbyContainer, {
         marginHorizontal: 100,
+        marginTop: 20,
         backgroundColor: themeColors.background,
         borderColor: themeColors.border,
         borderWidth: 1,
       }]}>
-        {renderTabContent()}
+        {showLobbyCreation ? renderLobbyCreationPage() : renderCombinedContent()}
       </View>
     </View>
   );
@@ -839,29 +907,26 @@ const styles = StyleSheet.create({
   mainContainer: {
     flex: 1,
   },
-  tabsWrapper: {
-    marginTop: 20, // 20px margin from top of container
-    marginBottom: 50, // 50px margin between tabs and main container
-    alignItems: 'center',
+  combinedContent: {
+    flex: 1,
   },
-  tabsContainer: {
-    flexDirection: 'row',
-    gap: 16,
-    paddingHorizontal: 24,
-  },
-  tab: {
+  sectionHeader: {
     paddingVertical: 16,
     paddingHorizontal: 24,
-    borderRadius: 12,
-    borderWidth: 2,
-    borderColor: 'rgba(255, 255, 255, 0.1)',
-    backgroundColor: 'rgba(255, 255, 255, 0.05)',
-    minWidth: 140,
-    alignItems: 'center',
+    borderBottomWidth: 1,
+    borderBottomColor: 'rgba(255, 255, 255, 0.1)',
   },
-  tabText: {
-    fontSize: 16,
-    fontWeight: '600',
+  sectionHeaderText: {
+    fontSize: 20,
+    fontWeight: '700',
+    textAlign: 'center',
+  },
+  horizontalStripe: {
+    height: 2,
+    marginVertical: 8,
+  },
+  sectionContent: {
+    paddingBottom: 20,
   },
   lobbyContainer: {
     flex: 1,
@@ -1412,5 +1477,173 @@ const styles = StyleSheet.create({
     textAlign: 'center',
     lineHeight: 20,
     fontStyle: 'italic',
+  },
+  createButtonContainer: {
+    padding: 30,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  createMainButton: {
+    paddingVertical: 14,
+    paddingHorizontal: 28,
+    borderRadius: 10,
+    alignItems: 'center',
+    minWidth: 160,
+    shadowColor: '#000',
+    shadowOffset: {
+      width: 0,
+      height: 3,
+    },
+    shadowOpacity: 0.25,
+    shadowRadius: 3.84,
+    elevation: 6,
+  },
+  createMainButtonText: {
+    fontSize: 16,
+    fontWeight: '600',
+    textAlign: 'center',
+  },
+  joinLobbyHeader: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginBottom: 24,
+  },
+  joinLobbySearchContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 12,
+    marginLeft: -50,
+  },
+  joinLobbySearchInput: {
+    flex: 1,
+    borderWidth: 1,
+    borderRadius: 8,
+    paddingHorizontal: 16,
+    paddingVertical: 12,
+    backgroundColor: 'rgba(255, 255, 255, 0.05)',
+    minWidth: 300,
+  },
+  joinLobbyTextInput: {
+    fontSize: 16,
+    paddingVertical: 4,
+  },
+  joinLobbyButton: {
+    paddingVertical: 12,
+    paddingHorizontal: 24,
+    borderRadius: 8,
+    alignItems: 'center',
+    minWidth: 80,
+  },
+  joinLobbyButtonText: {
+    fontSize: 16,
+    fontWeight: '600',
+  },
+  lobbyCreationContent: {
+    flex: 1,
+  },
+  lobbyCreationHeader: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    paddingVertical: 16,
+    paddingHorizontal: 24,
+    borderBottomWidth: 1,
+    borderBottomColor: 'rgba(255, 255, 255, 0.1)',
+  },
+  lobbyCreationTitle: {
+    fontSize: 20,
+    fontWeight: '700',
+    textAlign: 'center',
+    flex: 1,
+  },
+  backArrow: {
+    width: 40,
+    height: 40,
+    borderRadius: 20,
+    borderWidth: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    backgroundColor: 'rgba(255, 255, 255, 0.05)',
+  },
+  backArrowText: {
+    fontSize: 20,
+    fontWeight: 'bold',
+  },
+  placeholder: {
+    width: 40, // Same width as back arrow for centering
+  },
+  lobbyCardsContainer: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    gap: 16,
+    justifyContent: 'center',
+  },
+  lobbyCard: {
+    width: 200,
+    height: 220,
+    borderRadius: 16,
+    borderWidth: 1,
+    padding: 16,
+    justifyContent: 'space-between',
+    shadowColor: '#000',
+    shadowOffset: {
+      width: 0,
+      height: 2,
+    },
+    shadowOpacity: 0.1,
+    shadowRadius: 3.84,
+    elevation: 5,
+    transform: [{ scale: 1 }],
+  },
+  lobbyCardHeader: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'flex-start',
+    marginBottom: 12,
+  },
+  lobbyCardTitle: {
+    fontSize: 16,
+    fontWeight: '600',
+    flex: 1,
+    marginRight: 8,
+  },
+  lobbyStatusBadge: {
+    paddingHorizontal: 8,
+    paddingVertical: 4,
+    borderRadius: 6,
+    minWidth: 60,
+    alignItems: 'center',
+  },
+  lobbyStatusText: {
+    fontSize: 10,
+    fontWeight: '600',
+  },
+  lobbyCardInfo: {
+    alignItems: 'flex-start',
+  },
+  lobbyCardPlayers: {
+    fontSize: 14,
+    fontWeight: '500',
+    marginBottom: 4,
+  },
+  lobbyCardMode: {
+    fontSize: 12,
+    opacity: 0.8,
+  },
+  lobbyCreatorInfo: {
+    marginTop: 8,
+    paddingTop: 8,
+    borderTopWidth: 1,
+    borderTopColor: 'rgba(255, 255, 255, 0.1)',
+  },
+  lobbyCreatorLabel: {
+    fontSize: 10,
+    opacity: 0.7,
+    marginBottom: 2,
+  },
+  lobbyCreatorName: {
+    fontSize: 12,
+    fontWeight: '600',
   },
 });
