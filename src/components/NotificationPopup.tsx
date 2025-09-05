@@ -78,13 +78,13 @@ export const NotificationPopup: React.FC<NotificationPopupProps> = ({
           Animated.timing(glowAnim, {
             toValue: 1,
             duration: 2000,
-            easing: Easing.inOut(Easing.sine),
+            easing: Easing.inOut(Easing.sin),
             useNativeDriver: true,
           }),
           Animated.timing(glowAnim, {
             toValue: 0,
             duration: 2000,
-            easing: Easing.inOut(Easing.sine),
+            easing: Easing.inOut(Easing.sin),
             useNativeDriver: true,
           }),
         ])

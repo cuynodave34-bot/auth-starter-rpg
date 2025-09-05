@@ -45,8 +45,8 @@ export const Tooltip: React.FC<TooltipProps> = ({ children, text, theme = 'blue'
   return (
     <View style={styles.container}>
       <View
-        onMouseEnter={showTooltip}
-        onMouseLeave={hideTooltip}
+        onTouchStart={showTooltip}
+        onTouchEnd={hideTooltip}
         style={styles.trigger}
       >
         {children}

@@ -90,7 +90,7 @@ const AnimatedHeaderButton: React.FC<{
           },
         ]}
       >
-        {React.cloneElement(children as React.ReactElement, {
+        {React.cloneElement(children as React.ReactElement<any>, {
           color: iconColor,
         })}
       </Animated.View>
