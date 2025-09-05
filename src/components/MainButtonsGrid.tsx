@@ -144,8 +144,6 @@ const AnimatedMainButton: React.FC<{
       onPress={onPress}
       onPressIn={handlePressIn}
       onPressOut={handlePressOut}
-      onMouseEnter={handleHoverIn}
-      onMouseLeave={handleHoverOut}
       activeOpacity={0.8}
     >
              <Animated.View
@@ -173,7 +171,7 @@ const AnimatedMainButton: React.FC<{
            },
          ]}
        >
-        {React.cloneElement(children as React.ReactElement, {
+        {React.cloneElement(children as React.ReactElement<any>, {
           color: iconColor,
         })}
       </Animated.View>

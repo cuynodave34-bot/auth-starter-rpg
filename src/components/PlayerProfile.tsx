@@ -134,7 +134,7 @@ export const PlayerProfile: React.FC<PlayerProfileProps> = ({ theme }) => {
       <View style={[styles.cardContainer, { borderColor: currentTheme.border }]}>
         {/* Glow effect background */}
         <LinearGradient
-          colors={currentTheme.gradient}
+          colors={currentTheme.gradient as [string, string, ...string[]]}
           style={styles.glowBackground}
           start={{ x: 0, y: 0 }}
           end={{ x: 1, y: 1 }}

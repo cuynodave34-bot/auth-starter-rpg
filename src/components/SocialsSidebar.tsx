@@ -150,7 +150,7 @@ export const SocialsSidebar: React.FC<SocialsSidebarProps> = ({
 
   return (
     <LinearGradient
-      colors={currentTheme.gradient}
+      colors={currentTheme.gradient as [string, string, ...string[]]}
       style={styles.container}
       start={{ x: 0, y: 0 }}
       end={{ x: 1, y: 1 }}
