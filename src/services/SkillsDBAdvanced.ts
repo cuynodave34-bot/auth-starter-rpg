@@ -7,7 +7,27 @@
  * - Advanced caching strategies
  */
 
-import { EventEmitter } from 'events';
+// Simple EventEmitter implementation for React Native
+class EventEmitter {
+  private events: { [key: string]: Function[] } = {};
+
+  on(event: string, listener: Function) {
+    if (!this.events[event]) {
+      this.events[event] = [];
+    }
+    this.events[event].push(listener);
+  }
+
+  off(event: string, listener: Function) {
+    if (!this.events[event]) return;
+    this.events[event] = this.events[event].filter(l => l !== listener);
+  }
+
+  emit(event: string, ...args: any[]) {
+    if (!this.events[event]) return;
+    this.events[event].forEach(listener => listener(...args));
+  }
+}
 import { Skill, SkillUpdate, SkillSummary, SkillEngineData } from './SkillsDB';
 
 // LRU Cache Implementation

@@ -5,7 +5,7 @@
  * including caching, WebSocket connectivity, offline persistence, and more.
  */
 
-import { skillsDB, Skill } from './SkillsDB';
+import { skillsDB, Skill, SkillSummary } from './SkillsDB';
 import { AdvancedSkillsDB } from './SkillsDBAdvanced';
 
 // Example 1: Basic Usage
@@ -21,13 +21,21 @@ export async function basicUsageExample() {
     const newSkill = await skillsDB.createSkill({
       name: 'Fireball',
       description: 'A powerful fire spell',
-      level: 1,
-      experience: 0,
       category: 'Magic',
       rarity: 'common',
+      abilities: [
+        {
+          id: 'fireball-1',
+          name: 'Cast Fireball',
+          description: 'Launch a fireball at the target',
+          cooldown: 3000,
+          manaCost: 50,
+          damage: 100,
+          effects: ['burn', 'knockback']
+        }
+      ],
       ownerId: 'player-uuid-123',
-      acquiredAt: new Date().toISOString(),
-      isActive: true,
+      isTemplate: false,
     });
     
     console.log('Created skill:', newSkill);
@@ -38,8 +46,12 @@ export async function basicUsageExample() {
     
     // Update a skill
     const updatedSkill = await skillsDB.updateSkill(
-      newSkill.id,
-      { level: 2, experience: 100 },
+      newSkill.summary.id,
+      { 
+        name: 'Enhanced Fireball',
+        description: 'An even more powerful fire spell'
+      },
+      undefined,
       'player-uuid-123'
     );
     console.log('Updated skill:', updatedSkill);
@@ -73,11 +85,11 @@ export async function advancedConfigurationExample() {
     
     // Listen to events
     advancedDB.on('skillCreated', (skill: Skill) => {
-      console.log('New skill created:', skill.name);
+      console.log('New skill created:', skill.summary.name);
     });
     
     advancedDB.on('skillUpdated', (skill: Skill) => {
-      console.log('Skill updated:', skill.name, 'Level:', skill.level);
+      console.log('Skill updated:', skill.summary.name);
     });
     
     advancedDB.on('connected', () => {
@@ -112,13 +124,20 @@ export async function performanceTestExample() {
         skillsDB.createSkill({
           name: `Skill ${i}`,
           description: `Description for skill ${i}`,
-          level: Math.floor(Math.random() * 10) + 1,
-          experience: Math.floor(Math.random() * 1000),
           category: ['Magic', 'Combat', 'Utility'][Math.floor(Math.random() * 3)],
           rarity: ['common', 'uncommon', 'rare', 'epic', 'legendary'][Math.floor(Math.random() * 5)] as any,
+          abilities: [
+            {
+              id: `skill-${i}-ability`,
+              name: `Ability ${i}`,
+              description: `Ability description ${i}`,
+              cooldown: Math.floor(Math.random() * 5000) + 1000,
+              manaCost: Math.floor(Math.random() * 100) + 10,
+              damage: Math.floor(Math.random() * 200) + 50,
+            }
+          ],
           ownerId: `player-${Math.floor(Math.random() * 100)}`,
-          acquiredAt: new Date().toISOString(),
-          isActive: true,
+          isTemplate: false,
         })
       );
     }
@@ -130,7 +149,7 @@ export async function performanceTestExample() {
     
     // Test query performance
     const queryStartTime = Date.now();
-    const allSkills = await skillsDB.getAllSkills();
+    const allSkills = await skillsDB.getAllSkillSummaries();
     const queryEndTime = Date.now();
     
     console.log(`Retrieved ${allSkills.length} skills in ${queryEndTime - queryStartTime}ms`);
@@ -154,16 +173,14 @@ export async function errorHandlingExample() {
       await skillsDB.createSkill({
         name: 'Invalid Skill',
         description: 'This should fail',
-        level: 1,
-        experience: 0,
         category: 'Test',
         rarity: 'common',
+        abilities: [],
         ownerId: '', // Invalid owner ID
-        acquiredAt: new Date().toISOString(),
-        isActive: true,
+        isTemplate: false,
       });
     } catch (error) {
-      console.log('Expected error for invalid owner:', error.message);
+      console.log('Expected error for invalid owner:', (error as Error).message);
     }
     
     // Test unauthorized update
@@ -171,19 +188,23 @@ export async function errorHandlingExample() {
       const skill = await skillsDB.createSkill({
         name: 'Test Skill',
         description: 'Test description',
-        level: 1,
-        experience: 0,
         category: 'Test',
         rarity: 'common',
+        abilities: [
+          {
+            id: 'test-ability',
+            name: 'Test Ability',
+            description: 'Test ability description',
+          }
+        ],
         ownerId: 'player-1',
-        acquiredAt: new Date().toISOString(),
-        isActive: true,
+        isTemplate: false,
       });
       
       // Try to update with different owner
-      await skillsDB.updateSkill(skill.id, { level: 2 }, 'player-2');
+      await skillsDB.updateSkill(skill.summary.id, { name: 'Hacked Skill' }, undefined, 'player-2');
     } catch (error) {
-      console.log('Expected error for unauthorized update:', error.message);
+      console.log('Expected error for unauthorized update:', (error as Error).message);
     }
     
   } catch (error) {
@@ -202,17 +223,17 @@ export class BattleSystem {
   
   private setupEventListeners(): void {
     this.skillsDB.on('skillUpdated', (skill: Skill) => {
-      console.log(`Battle system: Skill ${skill.name} updated to level ${skill.level}`);
+      console.log(`Battle system: Skill ${skill.summary.name} updated`);
       // Update battle UI, recalculate damage, etc.
     });
     
     this.skillsDB.on('skillCreated', (skill: Skill) => {
-      console.log(`Battle system: New skill ${skill.name} available`);
+      console.log(`Battle system: New skill ${skill.summary.name} available`);
       // Add to available skills list
     });
   }
   
-  async getPlayerSkills(playerId: string): Promise<Skill[]> {
+  async getPlayerSkills(playerId: string): Promise<SkillSummary[]> {
     return await this.skillsDB.getSkillsByOwner(playerId);
   }
   
@@ -222,16 +243,13 @@ export class BattleSystem {
       throw new Error('Skill not found');
     }
     
-    if (skill.ownerId !== playerId) {
+    if (skill.summary.ownerId !== playerId) {
       throw new Error('Unauthorized skill use');
     }
     
-    // Update last used timestamp
-    await this.skillsDB.updateSkill(skillId, {
-      lastUsed: new Date().toISOString(),
-    }, playerId);
-    
-    console.log(`Player ${playerId} used skill ${skill.name}`);
+    // Update last used timestamp (this would need to be added to the SkillSummary interface)
+    // For now, we'll just log the usage
+    console.log(`Player ${playerId} used skill ${skill.summary.name}`);
   }
 }
 
@@ -249,10 +267,14 @@ export async function debugAndMonitoringExample() {
     setInterval(() => {
       const stats = skillsDB.getCacheStats();
       console.log('Cache performance:', {
-        hitRate: `${(stats.hitRate * 100).toFixed(2)}%`,
-        size: `${stats.size}/${stats.maxSize}`,
-        hits: stats.hits,
-        misses: stats.misses,
+        summaryHitRate: `${(stats.summaryCache.hitRate * 100).toFixed(2)}%`,
+        summarySize: `${stats.summaryCache.size}/${stats.summaryCache.maxSize}`,
+        summaryHits: stats.summaryCache.hits,
+        summaryMisses: stats.summaryCache.misses,
+        engineHitRate: `${(stats.engineCache.hitRate * 100).toFixed(2)}%`,
+        engineSize: `${stats.engineCache.size}/${stats.engineCache.maxSize}`,
+        engineHits: stats.engineCache.hits,
+        engineMisses: stats.engineCache.misses,
       });
     }, 5000);
     
